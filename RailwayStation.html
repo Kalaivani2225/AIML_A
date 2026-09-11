@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Station Timings</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #101820, #182a38);
+            color: #ffffff;
+            padding: 30px;
+        }
+
+        .station-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* Header */
+        .header {
+            background: #0b1116;
+            border: 1px solid #293944;
+            border-radius: 18px;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+
+        .station-title {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .station-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            background: #f4b400;
+            color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .station-title h1 {
+            font-size: 27px;
+            letter-spacing: 1px;
+        }
+
+        .station-title p {
+            color: #9eabb3;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .live-time {
+            text-align: right;
+        }
+
+        .live-time .time {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f4b400;
+        }
+
+        .live-time .date {
+            color: #9eabb3;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* Board */
+        .board {
+            background: #0b1116;
+            border: 1px solid #293944;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        }
+
+        .board-header {
+            background: #f4b400;
+            color: #111;
+            display: grid;
+            grid-template-columns: 100px 1.5fr 1fr 120px 150px;
+            padding: 17px 25px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .train-row {
+            display: grid;
+            grid-template-columns: 100px 1.5fr 1fr 120px 150px;
+            align-items: center;
+            padding: 22px 25px;
+            border-bottom: 1px solid #263640;
+            transition: 0.3s;
+        }
+
+        .train-row:hover {
+            background: #131f27;
+        }
+
+        .train-row:last-child {
+            border-bottom: none;
+        }
+
+        .train-number {
+            color: #f4b400;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .train-name {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .destination {
+            color: #c5cdd2;
+            font-size: 15px;
+        }
+
+        .platform {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: #1d303b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .status {
+            display: inline-flex;
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .on-time {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .delayed {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .boarding {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #77858d;
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 800px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .live-time {
+                text-align: left;
+            }
+
+            .board-header {
+                display: none;
+            }
+
+            .train-row {
+                grid-template-columns: 70px 1fr;
+                gap: 12px;
+                padding: 20px;
+            }
+
+            .destination,
+            .platform,
+            .status {
+                grid-column: 2;
+            }
+
+            .train-number {
+                grid-row: span 3;
+            }
+
+            .platform {
+                width: 100%;
+                justify-content: flex-start;
+                padding-left: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="station-container">
+
+    <!-- Station Header -->
+    <div class="header">
+
+        <div class="station-title">
+
+            <div class="station-icon">🚆</div>
+
+            <div>
+                <h1>Central Railway Station</h1>
+                <p>Train Arrival & Departure Information</p>
+            </div>
+
+        </div>
+
+        <div class="live-time">
+            <div class="time" id="clock">00:00:00</div>
+            <div class="date" id="date">Loading...</div>
+        </div>
+
+    </div>
+
+
+    <!-- Railway Board -->
+    <div class="board">
+
+        <div class="board-header">
+            <div>Train No.</div>
+            <div>Train Name</div>
+            <div>Destination</div>
+            <div>Platform</div>
+            <div>Status</div>
+        </div>
+
+
+        <!-- Train 1 -->
+        <div class="train-row">
+
+            <div class="train-number">12601</div>
+
+            <div class="train-name">
+                MGR Chennai Express
+            </div>
+
+            <div class="destination">
+                New Delhi
+            </div>
+
+            <div class="platform">
+                01
+            </div>
+
+            <div>
+                <span class="status on-time">
+                    ● ON TIME
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Train 2 -->
+        <div class="train-row">
+
+            <div class="train-number">12622</div>
+
+            <div class="train-name">
+                Tamil Nadu Express
+            </div>
+
+            <div class="destination">
+                Chennai Central
+            </div>
+
+            <div class="platform">
+                03
+            </div>
+
+            <div>
+                <span class="status boarding">
+                    ● BOARDING
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Train 3 -->
+        <div class="train-row">
+
+            <div class="train-number">12675</div>
+
+            <div class="train-name">
+                Kovai Express
+            </div>
+
+            <div class="destination">
+                Coimbatore
+            </div>
+
+            <div class="platform">
+                05
+            </div>
+
+            <div>
+                <span class="status on-time">
+                    ● ON TIME
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Train 4 -->
+        <div class="train-row">
+
+            <div class="train-number">12603</div>
+
+            <div class="train-name">
+                Hyderabad Express
+            </div>
+
+            <div class="destination">
+                Hyderabad
+            </div>
+
+            <div class="platform">
+                07
+            </div>
+
+            <div>
+                <span class="status delayed">
+                    ● DELAYED
+                </span>
+            </div>
+
+        </div>
+
+
+        <!-- Train 5 -->
+        <div class="train-row">
+
+            <div class="train-number">12027</div>
+
+            <div class="train-name">
+                Shatabdi Express
+            </div>
+
+            <div class="destination">
+                Bengaluru
+            </div>
+
+            <div class="platform">
+                09
+            </div>
+
+            <div>
+                <span class="status on-time">
+                    ● ON TIME
+                </span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+        Railway Information Display System • Please verify timings at the station
+    </div>
+
+</div>
+
+
+<script>
+
+    function updateClock() {
+
+        const now = new Date();
+
+        let hours = String(now.getHours()).padStart(2, '0');
+        let minutes = String(now.getMinutes()).padStart(2, '0');
+        let seconds = String(now.getSeconds()).padStart(2, '0');
+
+        document.getElementById("clock").textContent =
+            `${hours}:${minutes}:${seconds}`;
+
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+
+        document.getElementById("date").textContent =
+            now.toLocaleDateString('en-IN', options);
+    }
+
+    updateClock();
+
+    setInterval(updateClock, 1000);
+
+</script>
+
+</body>
+</html>
